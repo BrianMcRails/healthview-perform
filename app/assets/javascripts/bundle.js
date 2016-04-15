@@ -23018,6 +23018,26 @@
 
 	var _riskstore2 = _interopRequireDefault(_riskstore);
 
+	var _patientstore = __webpack_require__(211);
+
+	var _patientstore2 = _interopRequireDefault(_patientstore);
+
+	var _patientactions = __webpack_require__(212);
+
+	var _patientactions2 = _interopRequireDefault(_patientactions);
+
+	var _patientslist = __webpack_require__(213);
+
+	var _patientslist2 = _interopRequireDefault(_patientslist);
+
+	var _checkactions = __webpack_require__(215);
+
+	var _checkactions2 = _interopRequireDefault(_checkactions);
+
+	var _checkslist = __webpack_require__(216);
+
+	var _checkslist2 = _interopRequireDefault(_checkslist);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -23027,8 +23047,11 @@
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } //since we used link, we need to import link property from router library
 
 
+	//import CheckStore from '../stores/checkstore';
+
+
 	var getAppState = function getAppState() {
-		return { risksList: _riskstore2.default.getAll() };
+		return { risksList: _riskstore2.default.getAll(), patientsList: _patientstore2.default.getAll() };
 	};
 
 	var Index = function (_React$Component) {
@@ -23050,6 +23073,10 @@
 			value: function componentDidMount() {
 				_riskactions2.default.getAllRisks();
 				_riskstore2.default.addChangeListener(this._onChange);
+				_patientactions2.default.getAllPatients();
+				_patientstore2.default.addChangeListener(this._onChange);
+				//CheckActions.getAllChecks();
+				//CheckStore.addChangeListener(this._onChange);
 				this.intervalRefresh();
 
 				// $.ajax("/tweets")
@@ -23060,6 +23087,8 @@
 			key: 'componentWillUnmount',
 			value: function componentWillUnmount() {
 				_riskstore2.default.removeChangeListener(this._onChange);
+				_patientstore2.default.removeChangeListener(this._onChange);
+				//CheckStore.removeChangeListener(this._onChange);
 			}
 		}, {
 			key: '_onChange',
@@ -23070,6 +23099,7 @@
 			key: 'intervalRefresh',
 			value: function intervalRefresh() {
 				_riskactions2.default.refreshRisks();
+				_checkactions2.default.refreshChecks();
 				setInterval(this.intervalRefresh, 10000);
 			}
 		}, {
@@ -23078,7 +23108,8 @@
 				return _react2.default.createElement(
 					'div',
 					{ className: 'container' },
-					_react2.default.createElement(_riskbox2.default, null),
+					_react2.default.createElement(_patientslist2.default, { patients: this.state.patientsList }),
+					_react2.default.createElement(_checkslist2.default, null),
 					_react2.default.createElement(_riskslist2.default, { risks: this.state.risksList })
 				);
 			}
@@ -23203,7 +23234,7 @@
 			_API2.default.createRisk(title, score);
 		},
 		refreshRisks: function refreshRisks() {
-			setInterval(this.getAllRisks(), 10000);
+			setTimeout(this.getAllRisks(), 10000);
 		}
 	};
 
@@ -23239,6 +23270,35 @@
 		createRisk: function createRisk(title, score) {
 			$.post('/risks', { risk_score_title: title, risk_score: score }).success(function (rawRisk) {
 				return _serveractions2.default.receivedOneRisk(rawRisk);
+			}).error(function (error) {
+				return console.log(error);
+			});
+		},
+		getAllChecks: function getAllChecks() {
+			$.get('/pre_checks').success(function (rawChecks) {
+				return _serveractions2.default.receivedChecks(rawChecks);
+			}).error(function (error) {
+				return console.log(error);
+			});
+			console.log("getting checks...");
+		},
+		createCheck: function createCheck(name, status) {
+			$.post('/pre_checks', { check_name: name, check_status: status }).success(function (rawCheck) {
+				return _serveractions2.default.receivedOneCheck(rawCheck);
+			}).error(function (error) {
+				return console.log(error);
+			});
+		},
+		updateCheck: function updateCheck(check_id, check_status) {
+			$.put('/pre_checks', { check_status: status }).success(function (rawCheck) {
+				return _serveractions2.default.updatedOneCheck(rawCheck);
+			}).error(function (error) {
+				return console.log(error);
+			});
+		},
+		getAllPatients: function getAllPatients() {
+			$.get('/patients').success(function (rawPatients) {
+				return _serveractions2.default.receivedPatients(rawPatients);
 			}).error(function (error) {
 				return console.log(error);
 			});
@@ -23282,10 +23342,28 @@
 				rawRisk: rawRisk //same as rawTweet: rawTweet
 			});
 		},
-		receivedUsers: function receivedUsers(rawUsers) {
+		receivedChecks: function receivedChecks(rawChecks) {
 			_dispatcher2.default.dispatch({
-				actionType: _constants2.default.RECEIVED_USERS,
-				rawUsers: rawUsers
+				actionType: _constants2.default.RECEIVED_CHECKS,
+				rawChecks: rawChecks
+			});
+		},
+		receivedOneCheck: function receivedOneCheck(rawCheck) {
+			_dispatcher2.default.dispatch({
+				actionType: _constants2.default.RECEIVED_ONE_CHECK,
+				rawCheck: rawCheck //same as rawTweet: rawTweet
+			});
+		},
+		updatedOneCheck: function updatedOneCheck(rawCheck) {
+			_dispatcher2.default.dispatch({
+				actionType: _constants2.default.UPDATED_ONE_CHECK,
+				rawCheck: rawCheck //same as rawTweet: rawTweet
+			});
+		},
+		receivedPatients: function receivedPatients(rawPatients) {
+			_dispatcher2.default.dispatch({
+				actionType: _constants2.default.RECEIVED_PATIENTS,
+				rawPatients: rawPatients
 			});
 		}
 	};
@@ -23638,7 +23716,11 @@
 
 	exports.default = {
 		RECEIVED_RISKS: 'RECEIVED_RISKS',
-		RECEIVED_ONE_RISK: 'RECEIVED_ONE_RISK'
+		RECEIVED_ONE_RISK: 'RECEIVED_ONE_RISK',
+		RECEIVED_CHECKS: 'RECEIVED_CHECKS',
+		RECEIVED_ONE_CHECK: 'RECEIVED_ONE_CHECK',
+		UPDATED_ONE_CHECK: 'UPDATED_ONE_CHECK',
+		RECEIVED_PATIENTS: 'RECEIVED_PATIENTS'
 	};
 
 /***/ },
@@ -23710,7 +23792,7 @@
 	"use strict";
 
 	Object.defineProperty(exports, "__esModule", {
-	  value: true
+		value: true
 	});
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -23728,48 +23810,41 @@
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 	var Risk = function (_React$Component) {
-	  _inherits(Risk, _React$Component);
+		_inherits(Risk, _React$Component);
 
-	  function Risk() {
-	    _classCallCheck(this, Risk);
+		function Risk() {
+			_classCallCheck(this, Risk);
 
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(Risk).apply(this, arguments));
-	  }
+			return _possibleConstructorReturn(this, Object.getPrototypeOf(Risk).apply(this, arguments));
+		}
 
-	  _createClass(Risk, [{
-	    key: "render",
-	    value: function render() {
-	      return _react2.default.createElement(
-	        "li",
-	        { className: "collection-item avatar" },
-	        _react2.default.createElement("img", { className: "circle", src: this.props.gravatar }),
-	        _react2.default.createElement(
-	          "span",
-	          { className: "title" },
-	          this.props.name
-	        ),
-	        _react2.default.createElement("br", null),
-	        _react2.default.createElement(
-	          "time",
-	          null,
-	          "Last updated: ",
-	          this.props.formattedDate
-	        ),
-	        _react2.default.createElement(
-	          "p",
-	          null,
-	          this.props.risk_score_title
-	        ),
-	        _react2.default.createElement(
-	          "p",
-	          null,
-	          this.props.risk_percent
-	        )
-	      );
-	    }
-	  }]);
+		_createClass(Risk, [{
+			key: "render",
+			value: function render() {
+				return _react2.default.createElement(
+					"li",
+					{ className: "collection-item" },
+					_react2.default.createElement(
+						"p",
+						null,
+						this.props.risk_score_title
+					),
+					_react2.default.createElement(
+						"p",
+						null,
+						this.props.risk_percent
+					),
+					_react2.default.createElement(
+						"time",
+						null,
+						"Last updated: ",
+						this.props.formattedDate
+					)
+				);
+			}
+		}]);
 
-	  return Risk;
+		return Risk;
 	}(_react2.default.Component);
 
 	exports.default = Risk;
@@ -24215,6 +24290,465 @@
 	  return arg === void 0;
 	}
 
+
+/***/ },
+/* 211 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _dispatcher = __webpack_require__(201);
+
+	var _dispatcher2 = _interopRequireDefault(_dispatcher);
+
+	var _constants = __webpack_require__(205);
+
+	var _constants2 = _interopRequireDefault(_constants);
+
+	var _appeventemitter = __webpack_require__(209);
+
+	var _appeventemitter2 = _interopRequireDefault(_appeventemitter);
+
+	var _patientactions = __webpack_require__(212);
+
+	var _patientactions2 = _interopRequireDefault(_patientactions);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var _patients = [];
+
+	var PatientEventEmitter = function (_AppEventEmitter) {
+		_inherits(PatientEventEmitter, _AppEventEmitter);
+
+		function PatientEventEmitter() {
+			_classCallCheck(this, PatientEventEmitter);
+
+			return _possibleConstructorReturn(this, Object.getPrototypeOf(PatientEventEmitter).apply(this, arguments));
+		}
+
+		_createClass(PatientEventEmitter, [{
+			key: "getAll",
+			value: function getAll() {
+				return _patients.map(function (patient) {
+					patient.type = 'Active';
+					return patient;
+				});
+			}
+		}]);
+
+		return PatientEventEmitter;
+	}(_appeventemitter2.default);
+
+	var PatientStore = new PatientEventEmitter();
+
+	_dispatcher2.default.register(function (action) {
+
+		//action.actionType === RECEIVED_TWEETS
+		switch (action.actionType) {
+			case _constants2.default.RECEIVED_PATIENTS:
+				_patients = action.rawPatients;
+				PatientStore.emitChange();
+				break;
+			default:
+		}
+	});
+
+	exports.default = PatientStore;
+
+/***/ },
+/* 212 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _API = __webpack_require__(199);
+
+	var _API2 = _interopRequireDefault(_API);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	exports.default = {
+		getAllPatients: function getAllPatients() {
+			_API2.default.getAllPatients();
+		}
+	};
+
+/***/ },
+/* 213 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _patient = __webpack_require__(214);
+
+	var _patient2 = _interopRequireDefault(_patient);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var PatientsList = function (_React$Component) {
+		_inherits(PatientsList, _React$Component);
+
+		function PatientsList() {
+			_classCallCheck(this, PatientsList);
+
+			return _possibleConstructorReturn(this, Object.getPrototypeOf(PatientsList).apply(this, arguments));
+		}
+
+		_createClass(PatientsList, [{
+			key: 'render',
+			value: function render() {
+				var patients = this.props.patients.map(function (patient) {
+					return _react2.default.createElement(_patient2.default, _extends({ key: patient.id }, patient));
+				});
+
+				return _react2.default.createElement(
+					'div',
+					{ className: 'row' },
+					patients
+				);
+			}
+		}]);
+
+		return PatientsList;
+	}(_react2.default.Component);
+
+	exports.default = PatientsList;
+
+/***/ },
+/* 214 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Patient = function (_React$Component) {
+		_inherits(Patient, _React$Component);
+
+		function Patient() {
+			_classCallCheck(this, Patient);
+
+			return _possibleConstructorReturn(this, Object.getPrototypeOf(Patient).apply(this, arguments));
+		}
+
+		_createClass(Patient, [{
+			key: "render",
+			value: function render() {
+				return _react2.default.createElement(
+					"div",
+					{ className: "col s12" },
+					_react2.default.createElement("img", { className: "circle", src: this.props.gravatar }),
+					_react2.default.createElement(
+						"p",
+						null,
+						this.props.name
+					)
+				);
+			}
+		}]);
+
+		return Patient;
+	}(_react2.default.Component);
+
+	exports.default = Patient;
+
+/***/ },
+/* 215 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _API = __webpack_require__(199);
+
+	var _API2 = _interopRequireDefault(_API);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	exports.default = {
+		getAllChecks: function getAllChecks() {
+			_API2.default.getAllChecks();
+		},
+		sendCheck: function sendCheck(name, status) {
+			_API2.default.createCheck(name, status);
+		},
+		updateCheck: function updateCheck(check_id, check_status) {
+			_API2.default.updateCheck(check_id, check_status);
+			console.log("updating check status");
+		},
+		refreshChecks: function refreshChecks() {
+			setTimeout(this.getAllChecks(), 10000);
+		}
+	};
+
+/***/ },
+/* 216 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _checkstore = __webpack_require__(217);
+
+	var _checkstore2 = _interopRequireDefault(_checkstore);
+
+	var _checkactions = __webpack_require__(215);
+
+	var _checkactions2 = _interopRequireDefault(_checkactions);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var getAppState = function getAppState() {
+		return { checks: _checkstore2.default.getAll() };
+	};
+
+	var ChecksList = function (_React$Component) {
+		_inherits(ChecksList, _React$Component);
+
+		function ChecksList(props) {
+			_classCallCheck(this, ChecksList);
+
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(ChecksList).call(this, props));
+
+			_this.state = getAppState();
+			_this._onChange = _this._onChange.bind(_this);
+			return _this;
+		}
+
+		_createClass(ChecksList, [{
+			key: 'componentDidMount',
+			value: function componentDidMount() {
+				_checkactions2.default.getAllChecks();
+				_checkstore2.default.addChangeListener(this._onChange);
+			}
+		}, {
+			key: 'componentWillUnmount',
+			value: function componentWillUnmount() {
+				_checkstore2.default.removeChangeListener(this._onChange);
+			}
+		}, {
+			key: '_onChange',
+			value: function _onChange() {
+				this.setState(getAppState());
+			}
+		}, {
+			key: 'checkClasses',
+			value: function checkClasses(check_status) {
+				return check_status ? "'checked'" : null;
+			}
+		}, {
+			key: 'updateCheck',
+			value: function updateCheck(check_id, check_status) {
+				check_status = check_status ? false : true;
+				_checkactions2.default.updateCheck(check_id, check_status);
+			}
+		}, {
+			key: 'render',
+			value: function render() {
+				var _this2 = this;
+
+				var checks = this.state.checks.map(function (check) {
+					return _react2.default.createElement(
+						'p',
+						{ key: check.id },
+						_react2.default.createElement('input', { type: 'checkbox', ref: check.id, className: 'filled-in',
+							id: check.id, checked: check.check_status, onClick: _this2.updateCheck.bind(_this2, check.id, check.check_status) }),
+						_react2.default.createElement(
+							'label',
+							{ 'for': check.id },
+							check.check_name
+						),
+						_react2.default.createElement(
+							'time',
+							null,
+							'  ',
+							check.formattedDate
+						)
+					);
+				});
+				return _react2.default.createElement(
+					'div',
+					null,
+					_react2.default.createElement(
+						'form',
+						{ action: '#' },
+						checks
+					)
+				);
+			}
+		}]);
+
+		return ChecksList;
+	}(_react2.default.Component);
+
+	exports.default = ChecksList;
+
+/***/ },
+/* 217 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _dispatcher = __webpack_require__(201);
+
+	var _dispatcher2 = _interopRequireDefault(_dispatcher);
+
+	var _constants = __webpack_require__(205);
+
+	var _constants2 = _interopRequireDefault(_constants);
+
+	var _appeventemitter = __webpack_require__(209);
+
+	var _appeventemitter2 = _interopRequireDefault(_appeventemitter);
+
+	var _checkactions = __webpack_require__(215);
+
+	var _checkactions2 = _interopRequireDefault(_checkactions);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var _checks = [];
+
+	var CheckEventEmitter = function (_AppEventEmitter) {
+		_inherits(CheckEventEmitter, _AppEventEmitter);
+
+		function CheckEventEmitter() {
+			_classCallCheck(this, CheckEventEmitter);
+
+			return _possibleConstructorReturn(this, Object.getPrototypeOf(CheckEventEmitter).apply(this, arguments));
+		}
+
+		_createClass(CheckEventEmitter, [{
+			key: "getAll",
+			value: function getAll() {
+				return _checks.map(function (check) {
+					check.formattedDate = moment(check.updated_at).fromNow();
+					return check;
+				});
+			}
+		}]);
+
+		return CheckEventEmitter;
+	}(_appeventemitter2.default);
+
+	var CheckStore = new CheckEventEmitter();
+
+	_dispatcher2.default.register(function (action) {
+
+		//action.actionType === RECEIVED_TWEETS
+		switch (action.actionType) {
+			case _constants2.default.RECEIVED_CHECKS:
+				_checks = action.rawChecks;
+				CheckStore.emitChange();
+				//
+				break;
+			case _constants2.default.RECEIVED_ONE_CHECK:
+				_checks.unshift(action.rawCheck);
+				CheckStore.emitChange();
+			case _constants2.default.UPDATED_ONE_CHECK:
+				_checks.unshift(action.rawCheck);
+				CheckStore.emitChange();
+			default:
+		}
+	});
+
+	exports.default = CheckStore;
 
 /***/ }
 /******/ ]);

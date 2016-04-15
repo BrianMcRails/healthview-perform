@@ -10,6 +10,6 @@ export default {
 		API.createRisk(title, score);
 	},
 	refreshRisks(){
-		setInterval(this.getAllRisks(), 10000);
+		setTimeout(this.getAllRisks(), 10000);
 	}
 }

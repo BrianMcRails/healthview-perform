@@ -1,5 +1,8 @@
 Rails.application.routes.draw do
 
+  resources :pre_checks
+  get 'patients' => 'patients#index'
+
   resources :risks
   get 'profile' => 'profile#index'
   patch 'profile' => 'profile#update'

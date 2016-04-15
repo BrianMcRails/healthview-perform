@@ -15,10 +15,28 @@ export default {
 			rawRisk //same as rawTweet: rawTweet
 		})
 	},
-	receivedUsers(rawUsers){
+	receivedChecks(rawChecks){
 		AppDispatcher.dispatch({
-			actionType: ActionTypes.RECEIVED_USERS,
-			rawUsers: rawUsers
+			actionType: ActionTypes.RECEIVED_CHECKS,
+			rawChecks
+		})
+	},
+	receivedOneCheck(rawCheck){
+		AppDispatcher.dispatch({
+			actionType: ActionTypes.RECEIVED_ONE_CHECK,
+			rawCheck //same as rawTweet: rawTweet
+		})
+	},
+	updatedOneCheck(rawCheck){
+		AppDispatcher.dispatch({
+			actionType: ActionTypes.UPDATED_ONE_CHECK,
+			rawCheck //same as rawTweet: rawTweet
+		})
+	},
+	receivedPatients(rawPatients){
+		AppDispatcher.dispatch({
+			actionType: ActionTypes.RECEIVED_PATIENTS,
+			rawPatients
 		})
 	}
 }

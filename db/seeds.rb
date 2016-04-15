@@ -6,3 +6,5 @@
 #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
 #   Mayor.create(name: 'Emanuel', city: cities.first)
 Risk.create(user_id: 1, risk_score_title: 'SCAI Bleeding', risk_score: 28)
+PreCheck.create(user_id: 2, check_name: 'Pre cath imaging?', check_status: 0)
+PreCheck.create(user_id: 2, check_name: 'Pregnancy?', check_status: 0)
