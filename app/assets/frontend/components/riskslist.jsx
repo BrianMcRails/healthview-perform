@@ -5,7 +5,8 @@ export default class RisksList extends React.Component{
 	render() {
 		let risks = this.props.risks.map(risk => <Risk key={risk.id} {...risk} />);
 		return (
-			<div>
+			<div className="card-panel">
+				<p>Risk Scores</p>
 				<ul className="collection">
 					{risks}
 				</ul>

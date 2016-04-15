@@ -1,6 +1,7 @@
 import React from 'react';
 import CheckStore from '../stores/checkstore';
 import CheckActions from '../actions/checkactions';
+//import LinkedStateMixin from 'react-addons-linked-state-mixin';
 
 let getAppState = () => {
 	return {checks: CheckStore.getAll() };
@@ -35,14 +36,15 @@ export default class ChecksList extends React.Component{
 			return (
 				<p key={check.id}>
 					<input type="checkbox" ref={check.id} className="filled-in" 
-					id={check.id} checked={check.check_status} onClick={this.updateCheck.bind(this, check.id, check.check_status)}/>
+					id={check.id} checked={this.checkClasses(check.check_status)} onChange={this.updateCheck.bind(this, check.id, check.check_status)}/>
       				<label for={check.id}>{check.check_name}</label>
       				<time>  {check.formattedDate}</time>
       			</p>
 			)
 			});
 		return (
-			<div>
+			<div className="card-panel">
+				<p>Pre-procedure Checklist</p>
 				<form action='#'>
 					{checks}
 				</form>

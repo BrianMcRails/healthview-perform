@@ -23770,7 +23770,12 @@
 				});
 				return _react2.default.createElement(
 					'div',
-					null,
+					{ className: 'card-panel' },
+					_react2.default.createElement(
+						'p',
+						null,
+						'Risk Scores'
+					),
 					_react2.default.createElement(
 						'ul',
 						{ className: 'collection' },
@@ -24578,6 +24583,8 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+	//import LinkedStateMixin from 'react-addons-linked-state-mixin';
+
 	var getAppState = function getAppState() {
 		return { checks: _checkstore2.default.getAll() };
 	};
@@ -24632,7 +24639,7 @@
 						'p',
 						{ key: check.id },
 						_react2.default.createElement('input', { type: 'checkbox', ref: check.id, className: 'filled-in',
-							id: check.id, checked: check.check_status, onClick: _this2.updateCheck.bind(_this2, check.id, check.check_status) }),
+							id: check.id, checked: _this2.checkClasses(check.check_status), onChange: _this2.updateCheck.bind(_this2, check.id, check.check_status) }),
 						_react2.default.createElement(
 							'label',
 							{ 'for': check.id },
@@ -24648,7 +24655,12 @@
 				});
 				return _react2.default.createElement(
 					'div',
-					null,
+					{ className: 'card-panel' },
+					_react2.default.createElement(
+						'p',
+						null,
+						'Pre-procedure Checklist'
+					),
 					_react2.default.createElement(
 						'form',
 						{ action: '#' },
